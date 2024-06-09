@@ -6,20 +6,16 @@ const controlador = require('./index')
 
 //---------------Rutas de las consultas-------------------//
 
-router.get( '/login', login);
+router.post('/login',login);
 
 //--------------------------------------------------------------------------//
 
 //----------------------Funciones de las rutas-------------------------------//
 
-function login(req, res, next) {
-    try {
-        const token = controlador.login(req.body.user, req.body.pass);
-        respuestas.succes(req, res, token, 200);
-        
-    } catch (error) {
-        next(error)
-    }
+async function login(req, res) {
+
+    const item = await controlador.login(req, res);
+   
     
 }
 

@@ -2,6 +2,8 @@
 
 const tabla1 = 'usuario';
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const auth = require('../../autenticacion');
 
@@ -16,34 +18,36 @@ module.exports  = function (bdInyect){
     }
 
 
-    async function login(user, pass) {
-        const data = await db.query(tabla1, {usuario: user});
+    async function login(data,res) {
 
-        return bcrypt.compare(pass, data.cedula).then((respuesta) => {
-            if (respuesta === true) {
-                //token
-                return auth.tokens(data.cedula);
-        }else{
-            throw new Error('Usuario o contraseña incorrectos');
+       const {username, cedula } = data.body;
+
+        const user = await db.user(tabla1, username);
+        console.log(user)
+        if (!user) {
+            return res.json({error: 'Usuario incorrecto', status: 400});
         }
-    });
+
+        if (username !== user[0].username) {
+            
+            return res.json({error: 'Username incorrecto', status: 400});
+        }
+
+
+        const cedulaCorrecta = await bcrypt.compare(cedula, user[0].cedula);
+        if (!cedulaCorrecta) {
+            return res.json({error: 'cedula incorrecta', status: 400});
+        }
+
+        const token = jwt.sign({id: user[0].id, username: user[0].username},'123' );
+     
+
+      return res.json({token: token, status: 200});
+     
+        
     }   
     
-    
-  /*  async function added(data) {
-        const auth = {
-            id : data.id
-        }
 
-        if (data.username) {
-            auth.username = data.username;
-        }
-
-        if (data.cedula) {
-            auth.cedula = await bcrypt.hash(data.cedula.toString(), 5);
-        }
-        return db.insert(tabla1, auth);
-    }*/
 
 
    return{ 

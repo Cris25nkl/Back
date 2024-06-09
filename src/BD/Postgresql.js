@@ -211,10 +211,14 @@ function updateUser(tabla, data) {
 function agregoUser(tabla, data) {
     return new Promise(async (resolve, reject) => {
         const client = new postgresql.Client(dbconfig);
-        const cedula = await bcrypt.hash(data.cedula.toString(), 5);
+        const cedula = await bcrypt.hash(data.cedula.toString(), 5);//Para encriptar la cedula y usarla como contraseña
+        const generateToken =  (user) => {
+            return config.jwt.sign({id: user.id, username: user.username, email: user.email}, 'secret');
+        }
+
         client.connect()
             .then(() => {
-                client.query(`INSERT INTO ${tabla} (id, username,email, cedula) VALUES ($1, $2, $3, $4)`, [data.id,data.username, data.email, cedula])
+                    client.query(`INSERT INTO ${tabla} (id, username,email, cedula) VALUES ($1, $2, $3, $4)`, [data.id,data.username, data.email, cedula])
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -223,11 +227,15 @@ function agregoUser(tabla, data) {
                         client.end();
                         reject(err);
                     });
+
+                   
             })
             .catch((err) => {
                 client.end();
                 reject(err);
             });
+
+        
     });
 
 }
@@ -248,6 +256,8 @@ function deleted(tabla, data) {
                         client.end();
                         reject(err);
                     });
+                
+                
             })
             .catch((err) => {
                 client.end();
@@ -256,12 +266,13 @@ function deleted(tabla, data) {
     });
 }
 
-function query(tabla, consulta) {
+
+function user(tabla, data) {
     return new Promise((resolve, reject) => {
         const client = new postgresql.Client(dbconfig);
         client.connect()
             .then(() => {
-                client.query(`SELECT * FROM ${tabla} WHERE $1`, [consulta])
+                client.query(`SELECT username, cedula FROM ${tabla} WHERE username = $1`, [data])
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -276,7 +287,9 @@ function query(tabla, consulta) {
                 reject(err);
             });
     });
-}
+}   
+
+
 
 //----------------------------------------------------------------//
 
@@ -286,5 +299,6 @@ module.exports = {
     getById,
     insert,
     deleted,
-    query
+    user
+    
 };
