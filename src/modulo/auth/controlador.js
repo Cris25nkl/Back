@@ -23,9 +23,9 @@ module.exports  = function (bdInyect){
        const {username, cedula } = data.body;
 
         const user = await db.user(tabla1, username);
-        console.log(user)
-        if (!user) {
-            return res.json({error: 'Usuario incorrecto', status: 400});
+        
+        if (user.length === 0) {
+            return res.json({error: 'Usuario no encontrado', status: 400});
         }
 
         if (username !== user[0].username) {
