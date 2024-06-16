@@ -72,7 +72,9 @@ function getById(tabla, id) {
         const client = new postgresql.Client(dbconfig);
         client.connect()
             .then(() => {
-                client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
+                switch (tabla) {
+                    case 'empleado':
+                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -81,6 +83,35 @@ function getById(tabla, id) {
                         client.end();
                         reject(err);
                     });
+                        
+                        break;
+                    case 'usuario':
+                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
+                    .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });
+                        break;
+                    
+                    case 'inventario':
+                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
+                    .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });
+                
+                    default:
+                        break;
+                }
+                
             })
             .catch((err) => {
                 client.end();
@@ -105,6 +136,14 @@ function insert(tabla, data) {
                                     resolve(agrego(tabla, data));
                                 }
                                 break;
+
+                            case 'inventario':
+                                if (res.rows.length > 0) {
+                                    resolve(update(tabla, data));
+                                } else {
+                                    resolve(agrego(tabla, data));
+                                }
+                                break;
                             
                             case 'usuario':
                                 if (res.rows.length > 0) {
@@ -112,6 +151,8 @@ function insert(tabla, data) {
                                 } else {
                                     resolve(agregoUser(tabla, data));
                                 }
+
+                                break;
                         
                             default:
                                 break;
@@ -139,7 +180,9 @@ function update(tabla, data) {
         const client = new postgresql.Client(dbconfig);
         client.connect()
             .then(() => {
-                client.query(`UPDATE ${tabla} SET nombre = $1, apellido = $2, telefono = $3, cargo = $4 WHERE id = $5`, [data.nombre, data.apellido, data.telefono, data.cargo, data.id])
+                switch (tabla) {
+                    case 'empleado':
+                        client.query(`UPDATE ${tabla} SET nombre = $1, apellido = $2, telefono = $3, cargo = $4 WHERE id = $5`, [data.nombre, data.apellido, data.telefono, data.cargo, data.id])
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -148,6 +191,23 @@ function update(tabla, data) {
                         client.end();
                         reject(err);
                     });
+                        
+                        break;
+                    case 'inventario':
+                        client.query(`UPDATE ${tabla} SET nombreproducto = $1, preciounitario = $2, idproveedor = $3 WHERE id = $4`, [data.nombreproducto, data.preciounitario, data.idproveedor, data.id])
+                    .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });
+                    break;
+                
+                    default:
+                        break;
+                }
             })
             .catch((err) => {
                 client.end();
@@ -162,7 +222,9 @@ function agrego(tabla, data) {
         const client = new postgresql.Client(dbconfig);
         client.connect()
             .then(() => {
-                client.query(`INSERT INTO ${tabla} (id, nombre, apellido, telefono, cargo) VALUES ($1, $2, $3, $4, $5)`, [data.id, data.nombre, data.apellido, data.telefono, data.cargo])
+                switch (tabla) {
+                    case 'empleado':
+                        client.query(`INSERT INTO ${tabla} (id, nombre, apellido, telefono, cargo) VALUES ($1, $2, $3, $4, $5)`, [data.id, data.nombre, data.apellido, data.telefono, data.cargo])
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -171,6 +233,25 @@ function agrego(tabla, data) {
                         client.end();
                         reject(err);
                     });
+
+                    break;
+
+                    case 'inventario':
+                        client.query(`INSERT INTO ${tabla} (id, nombreproducto, preciounitario,idproveedor) VALUES ($1, $2, $3, $4)`, [data.id, data.nombreproducto, data.preciounitario, data.idproveedor])
+                        .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });
+                        
+                        break;
+                
+                    default:
+                        break;
+                }
             })
             .catch((err) => {
                 client.end();
@@ -267,12 +348,12 @@ function deleted(tabla, data) {
 }
 
 
-function user(tabla, data) {
+function user(tabla, id) {
     return new Promise((resolve, reject) => {
         const client = new postgresql.Client(dbconfig);
         client.connect()
             .then(() => {
-                client.query(`SELECT username, cedula FROM ${tabla} WHERE username = $1`, [data])
+                client.query(`SELECT id, cargo FROM ${tabla} WHERE id = $1`, [id])
                     .then((res) => {
                         client.end();
                         resolve(res.rows);

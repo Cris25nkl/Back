@@ -1,9 +1,6 @@
 
 
-const tabla1 = 'usuario';
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
+const tabla1 = 'empleado';
 
 const auth = require('../../autenticacion');
 
@@ -18,37 +15,10 @@ module.exports  = function (bdInyect){
     }
 
 
-    async function login(data,res) {
-
-       const {username, cedula } = data.body;
-
-        const user = await db.user(tabla1, username);
-        
-        if (user.length === 0) {
-            return res.json({error: 'Usuario no encontrado', status: 400});
-        }
-
-        if (username !== user[0].username) {
-            
-            return res.json({error: 'Username incorrecto', status: 400});
-        }
-
-
-        const cedulaCorrecta = await bcrypt.compare(cedula, user[0].cedula);
-        if (!cedulaCorrecta) {
-            return res.json({error: 'cedula incorrecta', status: 400});
-        }
-
-        const token = jwt.sign({id: user[0].id, username: user[0].username},'123' );
-     
-
-      return res.json({token: token, status: 200});
-     
-        
+    function login(id) {
+        return db.user(tabla1, id)
     }   
     
-
-
 
    return{ 
        
