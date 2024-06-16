@@ -6,10 +6,10 @@ const controlador = require('./index')
 
 //---------------Rutas de las consultas-------------------//
 
-router.get( '/usuario', all);
-router.get( '/usuario/:id', unique);
-router.put( '/usuario', deleted);
-router.post('/usuario', agregar);
+router.get('/venta', all);
+//router.get('/inventario/:id', unique);
+router.put('/venta', deleted);
+router.post('/venta', agregar);
 
 
 //--------------------------------------------------------------------------//
@@ -28,6 +28,8 @@ async function all(req, res, next) {
 }
 
 //--------------------------------------------------------------------------//
+
+/*
 async function unique (req, res, next){
     try {
         const item = await controlador.getOne(req.params.id);
@@ -38,8 +40,10 @@ async function unique (req, res, next){
     }
     
 }
+    */
 
 //--------------------------------------------------------------------------//
+
 
 async function deleted(req, res, next){
     try {
@@ -50,6 +54,7 @@ async function deleted(req, res, next){
     }
     
 }
+    
 
 //--------------------------------------------------------------------------//
 

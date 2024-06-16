@@ -20,9 +20,10 @@ app.use(cors({
 //importacion de modulos
 
 const empleado = require('./modulo/empleado/rutas')
-const usuario = require('./modulo/Usuarios/rutas')
 const auth = require('./modulo/auth/rutas')
 const inventario = require('./modulo/producto/rutas')
+const venta = require('./modulo/venta/rutas')
+const proveedor = require('./modulo/proveedor/rutas')
 
 //Middlewares
 app.use(morgan('dev'))
@@ -38,9 +39,10 @@ app.set('port', config.app.port)
 //Rutas de la api
 
 app.use('/api/v1', empleado)
-app.use('/api/v1', usuario)
 app.use('/api/v1', auth)
 app.use('/api/v1', inventario)
+app.use('/api/v1', venta)
+app.use('/api/v1', proveedor)
 app.use(error)
 
 

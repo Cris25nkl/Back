@@ -16,14 +16,14 @@ router.post('/login',login);
 //----------------------Funciones de las rutas-------------------------------//
 
 async function login(req, res) {
-    console.log(req.body)
+    //console.log(req.body)
 
     const {cargo, id } = req.body;
-    console.log(cargo, id)
+    //console.log(cargo, id)
 
         const user = await controlador.login(id);
 
-        console.log(user)
+        //console.log(user)
 
         
         
@@ -40,7 +40,7 @@ async function login(req, res) {
        // const pass = parseInt(user[0].id);
        const pass = user[0].id
 
-        console.log(typeof pass, typeof id)
+       // console.log(typeof pass, typeof id)
         
        
         if (pass !== id) {

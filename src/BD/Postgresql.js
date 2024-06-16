@@ -85,17 +85,6 @@ function getById(tabla, id) {
                     });
                         
                         break;
-                    case 'usuario':
-                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
-                    .then((res) => {
-                        client.end();
-                        resolve(res.rows);
-                    })
-                    .catch((err) => {
-                        client.end();
-                        reject(err);
-                    });
-                        break;
                     
                     case 'inventario':
                         client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
@@ -107,6 +96,19 @@ function getById(tabla, id) {
                         client.end();
                         reject(err);
                     });
+
+                        break;
+
+                    case 'proveedor':
+                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
+                    .then((res) => {client.end();
+                        resolve(res.rows);
+                    })  
+                    .catch((err) => {client.end();
+                        reject(err);
+                    });
+                        
+                            break;
                 
                     default:
                         break;
@@ -145,11 +147,20 @@ function insert(tabla, data) {
                                 }
                                 break;
                             
-                            case 'usuario':
+                            case 'venta':
                                 if (res.rows.length > 0) {
-                                    resolve(updateUser(tabla, data));
+                                    resolve(update(tabla, data));
                                 } else {
-                                    resolve(agregoUser(tabla, data));
+                                    resolve(agrego(tabla, data));
+                                }
+
+                                break;
+
+                            case 'proveedor':
+                                if (res.rows.length > 0) {
+                                    resolve(update(tabla, data));
+                                } else {
+                                    resolve(agrego(tabla, data));
                                 }
 
                                 break;
@@ -174,7 +185,7 @@ function insert(tabla, data) {
 
 //---------------FUNCIONES AUXILIARES PARA INSERT------------------//
 
-//----------------FUNCIONES AUXILIARES PARA EL MODULO EMPLEADO------------------//
+//----------------FUNCIONES AUXILIARES PARA EL OTROS MODULOS------------------//
 function update(tabla, data) {
     return new Promise((resolve, reject) => {
         const client = new postgresql.Client(dbconfig);
@@ -203,6 +214,27 @@ function update(tabla, data) {
                         client.end();
                         reject(err);
                     });
+                    break;
+
+                    case 'venta':
+                        client.query(`UPDATE ${tabla} SET nombreempleado = $1, productovendido = $2, cantivendida = $3, totalventa = $4
+                             WHERE id = $5`, [data.nombreempleado, data.productovendido, data.cantivendida, data.totalventa, data.id])
+                    .then((res) => {client.end();
+                        resolve(res.rows);
+                    }).catch((err) => {client.end();
+                        reject(err);
+                    });
+
+                    break;
+
+                    case 'proveedor':
+                        client.query(`UPDATE ${tabla} SET numerotelefono = $1, direccion = $2 WHERE id = $3`, [data.numerotelefono, data.direccion, data.id])
+                    .then((res) => {client.end();
+                        resolve(res.rows);
+                    }).catch((err) => {client.end();
+                        reject(err);
+                    });
+
                     break;
                 
                     default:
@@ -245,9 +277,27 @@ function agrego(tabla, data) {
                     .catch((err) => {
                         client.end();
                         reject(err);
-                    });
-                        
+                    });  
                         break;
+
+                    case 'venta':
+                        client.query(`INSERT INTO ${tabla} (id, nombreempleado, productovendido, cantivendida, totalventa) VALUES ($1, $2, $3, $4, $5)`, [data.id, data.nombreempleado, data.productovendido, data.cantivendida, data.totalventa])
+                        .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });  
+                        break;
+
+                    case 'proveedor':
+                        client.query(`INSERT INTO ${tabla} (id, numerotelefono, direccion) VALUES ($1, $2, $3)`, [data.id, data.numerotelefono, data.direccion])
+                        .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
                 
                     default:
                         break;
@@ -265,61 +315,7 @@ function agrego(tabla, data) {
 
 //---------------FUNCIONES AUXILIARES PARA USUARIO----------------//
 
-function updateUser(tabla, data) {
-    return new Promise(async (resolve, reject) =>  {
-        const client = new postgresql.Client(dbconfig);
-        const cedula = await bcrypt.hash(data.cedula.toString(), 5);
-        client.connect()
-            .then(() => {
-                client.query(`UPDATE ${tabla} SET username = $1, email = $2, cedula = $3 WHERE id = $4`, [data.username, data.email, cedula, data.id])
-                    .then((res) => {
-                        client.end();
-                        resolve(res.rows);
-                    })
-                    .catch((err) => {
-                        client.end();
-                        reject(err);
-                    });
-            })
-            .catch((err) => {
-                client.end();
-                reject(err);
-            });
-    });
 
-}
-
-function agregoUser(tabla, data) {
-    return new Promise(async (resolve, reject) => {
-        const client = new postgresql.Client(dbconfig);
-        const cedula = await bcrypt.hash(data.cedula.toString(), 5);//Para encriptar la cedula y usarla como contraseña
-        const generateToken =  (user) => {
-            return config.jwt.sign({id: user.id, username: user.username, email: user.email}, 'secret');
-        }
-
-        client.connect()
-            .then(() => {
-                    client.query(`INSERT INTO ${tabla} (id, username,email, cedula) VALUES ($1, $2, $3, $4)`, [data.id,data.username, data.email, cedula])
-                    .then((res) => {
-                        client.end();
-                        resolve(res.rows);
-                    })
-                    .catch((err) => {
-                        client.end();
-                        reject(err);
-                    });
-
-                   
-            })
-            .catch((err) => {
-                client.end();
-                reject(err);
-            });
-
-        
-    });
-
-}
 
 //----------------------------------------------------------------//
 
@@ -348,27 +344,6 @@ function deleted(tabla, data) {
 }
 
 
-function user(tabla, id) {
-    return new Promise((resolve, reject) => {
-        const client = new postgresql.Client(dbconfig);
-        client.connect()
-            .then(() => {
-                client.query(`SELECT id, cargo FROM ${tabla} WHERE id = $1`, [id])
-                    .then((res) => {
-                        client.end();
-                        resolve(res.rows);
-                    })
-                    .catch((err) => {
-                        client.end();
-                        reject(err);
-                    });
-            })
-            .catch((err) => {
-                client.end();
-                reject(err);
-            });
-    });
-}   
 
 
 
@@ -380,6 +355,6 @@ module.exports = {
     getById,
     insert,
     deleted,
-    user
+    
     
 };

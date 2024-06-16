@@ -1,6 +1,6 @@
 
 
-const tabla1 = 'usuario';
+const tabla1 = 'venta';
 
 
 
@@ -15,9 +15,11 @@ module.exports  = function (bdInyect){
         return db.getAll(tabla1);
     }
     
+    /*
     function getOne(id) {
         return db.getById(tabla1, id);
     }
+        */
     
     function del(body) {
         return db.deleted(tabla1, body);
@@ -30,7 +32,6 @@ module.exports  = function (bdInyect){
 
    return{ 
         getAll,
-        getOne,
         del,
         added}
 };
