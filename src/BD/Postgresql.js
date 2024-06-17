@@ -87,7 +87,7 @@ function getById(tabla, id) {
                         break;
                     
                     case 'inventario':
-                        client.query(`SELECT * FROM ${tabla} WHERE id = '${id}'`)
+                        client.query(`SELECT nombreproducto, preciounitario FROM ${tabla} WHERE id = '${id}'`)
                     .then((res) => {
                         client.end();
                         resolve(res.rows);
@@ -344,6 +344,30 @@ function deleted(tabla, data) {
 }
 
 
+function user(tabla, id) {
+    return new Promise((resolve, reject) => {
+        const client = new postgresql.Client(dbconfig);
+        client.connect()
+            .then(() => {
+                client.query(`SELECT id, cargo FROM ${tabla} WHERE id = $1`, [id])
+                    .then((res) => {
+                        client.end();
+                        resolve(res.rows);
+                    })
+                    .catch((err) => {
+                        client.end();
+                        reject(err);
+                    });
+            })
+            .catch((err) => {
+                client.end();
+                reject(err);
+            });
+    });
+}   
+
+
+
 
 
 
@@ -355,6 +379,7 @@ module.exports = {
     getById,
     insert,
     deleted,
+    user
     
     
 };

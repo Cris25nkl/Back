@@ -19,7 +19,7 @@ router.post('/proveedor', agregar);
 async function all(req, res, next) {
     try {
         const item = await controlador.getAll();
-        respuestas.succes(req, res, item, 200);
+        res.json(item);
         
     } catch (error) {
         next(error)

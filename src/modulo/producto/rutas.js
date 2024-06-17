@@ -19,7 +19,7 @@ router.post('/inventario', agregar);
 async function all(req, res, next) {
     try {
         const item = await controlador.getAll();
-        respuestas.succes(req, res, item, 200);
+        res.json(item);
         
     } catch (error) {
         next(error)
@@ -31,7 +31,7 @@ async function all(req, res, next) {
 async function unique (req, res, next){
     try {
         const item = await controlador.getOne(req.params.id);
-        respuestas.succes(req, res, item, 200);
+        res.status(200).json(item);
     } catch (error) {
         next(error)
         
